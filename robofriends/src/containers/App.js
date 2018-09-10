@@ -1,17 +1,30 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import CardList from "../components/CardList";
 import SearchBox from "../components/Searchbox";
 // import { robots } from "./robots";
 import Scroll from "../components/Scroll";
 import ErrorBoundary from "../components/ErrorBoundary";
 import "./App.css";
+import { setSearchField } from "../action.js";
+
+const mapStateToProps = state => {
+  return {
+    searchField: state.searchField
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onSearchChange: event => dispatch(setSearchField(event.target.value))
+  };
+};
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      robots: [],
-      searchField: ""
+      robots: []
     };
   }
 
@@ -23,17 +36,15 @@ class App extends Component {
     // this.setState({robots: robots});
   }
 
-  onSearchChange = event => {
-    this.setState({ searchField: event.target.value });
-  };
-
   render() {
-    const filteredRobots = this.state.robots.filter(robot => {
+    const {robots} = this.state;
+    const {searchField, onSearchChange} = this.props;
+    const filteredRobots = robots.filter(robot => {
       return robot.name
         .toLowerCase()
-        .includes(this.state.searchField.toLowerCase());
+        .includes(searchField.toLowerCase());
     });
-    if (this.state.robots.length === 0) {
+    if (!robots.length) {
       return (
         <div className="tc">
           <h1 className="f1"> Loading </h1>{" "}
@@ -43,12 +54,12 @@ class App extends Component {
       return (
         <div className="tc">
           <h1 className="f1 "> RoboFriends </h1>{" "}
-          <SearchBox searchChange={this.onSearchChange} />{" "}
+          <SearchBox searchChange={onSearchChange} />{" "}
           <Scroll>
             <ErrorBoundary>
               {" "}
               <CardList robots={filteredRobots} />{" "}
-            </ErrorBoundary>
+            </ErrorBoundary>{" "}
           </Scroll>{" "}
         </div>
       );
@@ -56,4 +67,7 @@ class App extends Component {
   }
 }
 
-export default App;
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);
