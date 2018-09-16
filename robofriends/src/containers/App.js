@@ -6,45 +6,49 @@ import SearchBox from "../components/Searchbox";
 import Scroll from "../components/Scroll";
 import ErrorBoundary from "../components/ErrorBoundary";
 import "./App.css";
-import { setSearchField } from "../action.js";
+import { setSearchField, requestRobots } from "../action.js";
 
 const mapStateToProps = state => {
   return {
-    searchField: state.searchField
+    searchField: state.searchRobots.searchField,
+    robots: state.requestRobots.robots,
+    isPending: state.requestRobots.isPending
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    onSearchChange: event => dispatch(setSearchField(event.target.value))
+    onSearchChange: event => dispatch(setSearchField(event.target.value)),
+    onRequestRobots: () => dispatch(requestRobots())
   };
 };
 
 class App extends Component {
-  constructor() {
-    super();
-    this.state = {
-      robots: []
-    };
-  }
+  // constructor() {
+  //   super();
+  //   this.state = {
+  //     robots: []
+  //   };
+  // }
 
   componentDidMount() {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then(response => response.json())
-      // .then(users => {});
-      .then(users => this.setState({ robots: users }));
-    // this.setState({robots: robots});
+    // fetch("https://jsonplaceholder.typicode.com/users")
+    //   .then(response => response.json())
+    //   // .then(users => {});
+    //   .then(users => this.setState({ robots: users }));
+    // // this.setState({robots: robots});
+
+    this.props.onRequestRobots();
   }
 
   render() {
-    const {robots} = this.state;
-    const {searchField, onSearchChange} = this.props;
+    // const {robots} = this.state;
+    const { searchField, onSearchChange, robots, isPending } = this.props;
     const filteredRobots = robots.filter(robot => {
-      return robot.name
-        .toLowerCase()
-        .includes(searchField.toLowerCase());
+      return robot.name.toLowerCase().includes(searchField.toLowerCase());
     });
-    if (!robots.length) {
+    // if (!robots.length) {
+    if (isPending) {
       return (
         <div className="tc">
           <h1 className="f1"> Loading </h1>{" "}
